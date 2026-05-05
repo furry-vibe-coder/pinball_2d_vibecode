@@ -3,3 +3,4 @@ web/
 *.o
 *.zip
 pinball_runtime.log
+pinball_highscore.txt
