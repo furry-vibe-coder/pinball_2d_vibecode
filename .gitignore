@@ -1,0 +1,5 @@
+web/
+*.exe
+*.o
+*.zip
+pinball_runtime.log
