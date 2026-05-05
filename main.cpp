@@ -25,8 +25,9 @@ struct Mix_Chunk {};
 
 namespace fs = std::filesystem;
 
-static constexpr int kScreenW = 960;
-static constexpr int kScreenH = 1280;
+static constexpr float kSceneScale = 0.8f;
+static constexpr int kScreenW = 768;
+static constexpr int kScreenH = 1024;
 static constexpr float kFixedDt = 1.0f / 120.0f;
 static constexpr float kPi = 3.14159265358979323846f;
 static constexpr int kMaxMultiballs = 4096;
@@ -96,6 +97,7 @@ static float Fbm2(float x, float y) {
     }
     return sum;
 }
+static float S(float v) { return v * kSceneScale; }
 
 struct Segment {
     Vec2 a;
@@ -104,9 +106,9 @@ struct Segment {
 };
 
 struct Ball {
-    Vec2 pos{880.0f, 1100.0f};
+    Vec2 pos{S(880.0f), S(1100.0f)};
     Vec2 vel{0.0f, 0.0f};
-    float radius = 14.0f;
+    float radius = S(14.0f);
     float squash = 0.0f;
     float ttl = -1.0f;
     float maxTtl = -1.0f;
@@ -129,8 +131,8 @@ struct FloatingText {
 };
 
 struct SaucerKicker {
-    Vec2 pos{680.0f, 780.0f};
-    float radius = 28.0f;
+    Vec2 pos{S(680.0f), S(780.0f)};
+    float radius = S(28.0f);
     bool captured = false;
     bool capturedIsMain = true;
     Ball capturedBall{};
@@ -151,10 +153,10 @@ struct Flipper {
 };
 
 struct Plunger {
-    float yTop = 940.0f;
-    float yBottom = 1180.0f;
-    float yCurrent = 1180.0f;
-    float maxCompression = 170.0f;
+    float yTop = S(940.0f);
+    float yBottom = S(1180.0f);
+    float yCurrent = S(1180.0f);
+    float maxCompression = S(170.0f);
     float pullAmount = 0.0f;
     float pullSpeed = 1.8f;
     float returnSpeed = 7.0f;
@@ -823,40 +825,40 @@ int main(int argc, char **argv) {
     trail.reserve(20);
 
     std::vector<Segment> walls = {
-        {{80.0f, 220.0f}, {80.0f, 1170.0f}, 0.76f},
-        {{80.0f, 220.0f}, {86.0f, 170.0f}, 0.76f},
-        {{86.0f, 170.0f}, {98.0f, 135.0f}, 0.76f},
-        {{98.0f, 135.0f}, {118.0f, 108.0f}, 0.76f},
-        {{118.0f, 108.0f}, {145.0f, 90.0f}, 0.76f},
-        {{145.0f, 90.0f}, {180.0f, 82.0f}, 0.76f},
-        {{180.0f, 82.0f}, {220.0f, 80.0f}, 0.76f},
-        {{220.0f, 80.0f}, {740.0f, 80.0f}, 0.76f},
-        {{740.0f, 80.0f}, {780.0f, 82.0f}, 0.76f},
-        {{780.0f, 82.0f}, {815.0f, 90.0f}, 0.76f},
-        {{815.0f, 90.0f}, {842.0f, 108.0f}, 0.76f},
-        {{842.0f, 108.0f}, {862.0f, 135.0f}, 0.76f},
-        {{862.0f, 135.0f}, {874.0f, 170.0f}, 0.76f},
-        {{874.0f, 170.0f}, {880.0f, 220.0f}, 0.76f},
-        {{880.0f, 220.0f}, {880.0f, 1220.0f}, 0.74f},
-        {{836.0f, 900.0f}, {836.0f, 1220.0f}, 0.74f},
-        {{836.0f, 900.0f}, {758.0f, 838.0f}, 0.86f},
+        {{S(80.0f), S(220.0f)}, {S(80.0f), S(1170.0f)}, 0.76f},
+        {{S(80.0f), S(220.0f)}, {S(86.0f), S(170.0f)}, 0.76f},
+        {{S(86.0f), S(170.0f)}, {S(98.0f), S(135.0f)}, 0.76f},
+        {{S(98.0f), S(135.0f)}, {S(118.0f), S(108.0f)}, 0.76f},
+        {{S(118.0f), S(108.0f)}, {S(145.0f), S(90.0f)}, 0.76f},
+        {{S(145.0f), S(90.0f)}, {S(180.0f), S(82.0f)}, 0.76f},
+        {{S(180.0f), S(82.0f)}, {S(220.0f), S(80.0f)}, 0.76f},
+        {{S(220.0f), S(80.0f)}, {S(740.0f), S(80.0f)}, 0.76f},
+        {{S(740.0f), S(80.0f)}, {S(780.0f), S(82.0f)}, 0.76f},
+        {{S(780.0f), S(82.0f)}, {S(815.0f), S(90.0f)}, 0.76f},
+        {{S(815.0f), S(90.0f)}, {S(842.0f), S(108.0f)}, 0.76f},
+        {{S(842.0f), S(108.0f)}, {S(862.0f), S(135.0f)}, 0.76f},
+        {{S(862.0f), S(135.0f)}, {S(874.0f), S(170.0f)}, 0.76f},
+        {{S(874.0f), S(170.0f)}, {S(880.0f), S(220.0f)}, 0.76f},
+        {{S(880.0f), S(220.0f)}, {S(880.0f), S(1220.0f)}, 0.74f},
+        {{S(836.0f), S(900.0f)}, {S(836.0f), S(1220.0f)}, 0.74f},
+        {{S(836.0f), S(900.0f)}, {S(758.0f), S(838.0f)}, 0.86f},
         // Slingshot/inlane rails: guide toward center, avoid dead-end pockets.
-        {{126.0f, 946.0f}, {238.0f, 1056.0f}, 0.82f},
-        {{710.0f, 1056.0f}, {804.0f, 946.0f}, 0.82f},
-        {{80.0f, 1170.0f}, {380.0f, 1220.0f}, 0.70f},
-        {{580.0f, 1220.0f}, {880.0f, 1160.0f}, 0.70f},
+        {{S(126.0f), S(946.0f)}, {S(238.0f), S(1056.0f)}, 0.82f},
+        {{S(710.0f), S(1056.0f)}, {S(804.0f), S(946.0f)}, 0.82f},
+        {{S(80.0f), S(1170.0f)}, {S(380.0f), S(1220.0f)}, 0.70f},
+        {{S(580.0f), S(1220.0f)}, {S(880.0f), S(1160.0f)}, 0.70f},
     };
 
     std::vector<Bumper> bumpers = {
-        {{260.0f, 340.0f}, 44.0f, 0.0f, 2100.0f, 10},
-        {{490.0f, 290.0f}, 46.0f, 0.0f, 2300.0f, 25},
-        {{720.0f, 380.0f}, 44.0f, 0.0f, 2200.0f, 10},
-        {{490.0f, 550.0f}, 50.0f, 0.0f, 2500.0f, 15},
+        {{S(260.0f), S(340.0f)}, S(44.0f), 0.0f, 2100.0f * kSceneScale, 10},
+        {{S(490.0f), S(290.0f)}, S(46.0f), 0.0f, 2300.0f * kSceneScale, 25},
+        {{S(720.0f), S(380.0f)}, S(44.0f), 0.0f, 2200.0f * kSceneScale, 10},
+        {{S(490.0f), S(550.0f)}, S(50.0f), 0.0f, 2500.0f * kSceneScale, 15},
     };
 
     // Classic pinball hinge layout: pivots are outer/top corners of each flipper.
-    Flipper left{{248.0f, 1072.0f}, 205.0f, 28.0f, 0.36f, -0.95f, 0.36f, true, false, 0.0f};
-    Flipper right{{712.0f, 1072.0f}, 205.0f, 28.0f, 2.78f, 3.74f, 2.78f, false, false, 0.0f};
+    Flipper left{{S(248.0f), S(1072.0f)}, S(205.0f), S(28.0f), 0.36f, -0.95f, 0.36f, true, false, 0.0f};
+    Flipper right{{S(712.0f), S(1072.0f)}, S(205.0f), S(28.0f), 2.78f, 3.74f, 2.78f, false, false, 0.0f};
     Plunger plunger;
 
     int score = 0;
@@ -900,7 +902,7 @@ int main(int argc, char **argv) {
                            e.key.keysym.sym == SDLK_KP_ENTER) {
                     showHelpOverlay = false;
                     if (gameOver && (e.key.keysym.sym == SDLK_SPACE || e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_KP_ENTER)) {
-                        ball.pos = {880.0f, 1100.0f};
+                        ball.pos = {S(880.0f), S(1100.0f)};
                         ball.vel = {0.0f, 0.0f};
                         multiballs.clear();
                         score = 0;
@@ -926,15 +928,15 @@ int main(int argc, char **argv) {
                     if (!gameOver && launchReady) {
                         float power = std::max(0.16f, plunger.pullAmount);
                         // Strong release with slight randomness gives classic pinball unpredictability.
-                        ball.vel.y = -(900.0f + 1550.0f * power);
-                        ball.vel.x = -220.0f + (static_cast<float>(std::rand() % 120) - 60.0f);
+                        ball.vel.y = -S(900.0f + 1550.0f * power);
+                        ball.vel.x = S(-220.0f + (static_cast<float>(std::rand() % 120) - 60.0f));
                         // Lane clear: if extra balls are stacked in shooter lane, plunger blast pushes them back into play.
                         for (auto &mb : multiballs) {
-                            if (mb.pos.x > 836.0f && mb.pos.y > 860.0f) {
+                            if (mb.pos.x > S(836.0f) && mb.pos.y > S(860.0f)) {
                                 float jitter = static_cast<float>(std::rand() % 120) - 60.0f;
-                                mb.vel.y = std::min(mb.vel.y, -(980.0f + 1150.0f * power));
-                                mb.vel.x -= (220.0f + jitter * 0.35f);
-                                mb.pos.x = std::max(822.0f, mb.pos.x - 4.0f);
+                                mb.vel.y = std::min(mb.vel.y, -S(980.0f + 1150.0f * power));
+                                mb.vel.x -= S(220.0f + jitter * 0.35f);
+                                mb.pos.x = std::max(S(822.0f), mb.pos.x - S(4.0f));
                             }
                         }
                         plunger.pullAmount = 0.0f;
@@ -969,7 +971,7 @@ int main(int argc, char **argv) {
                 if (saucer.holdTimer <= 0.0f) {
                     saucer.captured = false;
                     float a = (static_cast<float>(std::rand() % 1000) / 1000.0f) * 2.0f * kPi;
-                    float speed = 860.0f + static_cast<float>(std::rand() % 520);
+                    float speed = S(860.0f + static_cast<float>(std::rand() % 520));
                     Vec2 kickDir{std::cos(a), -std::abs(std::sin(a))};
                     if (saucer.capturedIsMain) {
                         ball.pos = saucer.pos + kickDir * (saucer.radius + ball.radius + 6.0f);
@@ -982,7 +984,7 @@ int main(int argc, char **argv) {
                     }
                     saucer.recaptureCooldown = 0.55f;
                     synth.Play(300.0f + static_cast<float>(std::rand() % 140), 0.16f, 0.32f, 0.62f, 0.24f);
-                    floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - 34.0f}, {0.0f, -26.0f}, "KICK!", 0.65f, 0.65f});
+                    floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - S(34.0f)}, {0.0f, -S(26.0f)}, "KICK!", 0.65f, 0.65f});
                     mainCapturedBySaucer = false;
                 }
             } else {
@@ -991,7 +993,7 @@ int main(int argc, char **argv) {
 
             if (gameOver || launchReady || mainCapturedBySaucer) {
                 if (launchReady || gameOver) {
-                    ball.pos = {850.0f, plunger.yCurrent - 34.0f};
+                    ball.pos = {S(850.0f), plunger.yCurrent - S(34.0f)};
                     ball.vel = {0.0f, 0.0f};
                 }
             } else {
@@ -1001,11 +1003,11 @@ int main(int argc, char **argv) {
                 float subDt = kFixedDt / static_cast<float>(subSteps);
 
                 for (int i = 0; i < subSteps; ++i) {
-                    ball.vel.y += 980.0f * subDt;
+                    ball.vel.y += S(980.0f) * subDt;
                     ball.vel = ball.vel * std::pow(0.999f, 120.0f * subDt);
-                if (ball.pos.x > 846.0f && ball.pos.y > 900.0f) {
+                if (ball.pos.x > S(846.0f) && ball.pos.y > S(900.0f)) {
                         // Prevent soft-locks in shooter lane by biasing ball back into playfield.
-                        ball.vel.x -= 520.0f * subDt;
+                        ball.vel.x -= S(520.0f) * subDt;
                     }
                     ball.pos += ball.vel * subDt;
 
@@ -1026,7 +1028,7 @@ int main(int argc, char **argv) {
                             int delta = score - scoreBefore;
                             if (delta > 0) {
                                 floatingTexts.push_back(
-                                    {{b.pos.x, b.pos.y - b.radius - 12.0f}, {0.0f, -34.0f}, "+" + std::to_string(delta), 0.55f, 0.55f});
+                                    {{b.pos.x, b.pos.y - b.radius - S(12.0f)}, {0.0f, -S(34.0f)}, "+" + std::to_string(delta), 0.55f, 0.55f});
                             }
                         }
                         b.flash = std::max(0.0f, b.flash - subDt * 2.4f);
@@ -1041,7 +1043,7 @@ int main(int argc, char **argv) {
                         saucer.holdTimer = 0.85f + static_cast<float>(std::rand() % 80) / 100.0f;
                         score += 40;
                         synth.Play(250.0f, 0.10f, 0.22f, 0.30f, 0.12f);
-                        floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - 34.0f}, {0.0f, -30.0f}, "+40", 0.62f, 0.62f});
+                        floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - S(34.0f)}, {0.0f, -S(30.0f)}, "+40", 0.62f, 0.62f});
                         break;
                     }
                 }
@@ -1054,7 +1056,7 @@ int main(int argc, char **argv) {
                     int subSteps = std::clamp(static_cast<int>(std::ceil(travel / (mb.radius * 0.45f))), 1, 6);
                     float subDt = kFixedDt / static_cast<float>(subSteps);
                     for (int i = 0; i < subSteps; ++i) {
-                        mb.vel.y += 980.0f * subDt;
+                        mb.vel.y += S(980.0f) * subDt;
                         mb.vel = mb.vel * std::pow(0.999f, 120.0f * subDt);
                         mb.pos += mb.vel * subDt;
 
@@ -1068,8 +1070,8 @@ int main(int argc, char **argv) {
                                 synth.Play(420.0f + static_cast<float>(std::rand() % 180), 0.10f, 0.20f, 0.36f, 0.16f);
                                 int delta = score - scoreBefore;
                                 if (delta > 0) {
-                                    floatingTexts.push_back({{b.pos.x, b.pos.y - b.radius - 12.0f},
-                                                             {0.0f, -34.0f},
+                                    floatingTexts.push_back({{b.pos.x, b.pos.y - b.radius - S(12.0f)},
+                                                             {0.0f, -S(34.0f)},
                                                              "+" + std::to_string(delta),
                                                              0.45f,
                                                              0.45f});
@@ -1089,7 +1091,7 @@ int main(int argc, char **argv) {
                             saucer.holdTimer = 0.80f + static_cast<float>(std::rand() % 90) / 100.0f;
                             score += 40;
                             synth.Play(250.0f, 0.10f, 0.22f, 0.30f, 0.12f);
-                            floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - 34.0f}, {0.0f, -30.0f}, "+40", 0.62f, 0.62f});
+                            floatingTexts.push_back({{saucer.pos.x, saucer.pos.y - S(34.0f)}, {0.0f, -S(30.0f)}, "+40", 0.62f, 0.62f});
                             multiballs.erase(multiballs.begin() + mbi);
                             --mbi;
                             break;
@@ -1114,7 +1116,7 @@ int main(int argc, char **argv) {
                 }
                 multiballs.erase(std::remove_if(multiballs.begin(), multiballs.end(),
                                                 [](const Ball &b) {
-                                                    bool drained = b.pos.y > kScreenH + 60.0f;
+                                                    bool drained = b.pos.y > kScreenH + S(60.0f);
                                                     bool expired = (b.ttl >= 0.0f && b.ttl <= 0.0f);
                                                     return drained || expired;
                                                 }),
@@ -1126,8 +1128,8 @@ int main(int argc, char **argv) {
                     while (multiballSpawnTimer >= 5.0f) {
                         multiballSpawnTimer -= 5.0f;
                         int spawnCount = std::min(12 * (multiballWave + 1), kMaxSpawnPerWave);
-                        Vec2 anchor{500.0f, 760.0f};
-                        Vec2 baseVel{0.0f, -180.0f};
+                        Vec2 anchor{S(500.0f), S(760.0f)};
+                        Vec2 baseVel{0.0f, -S(180.0f)};
                         if (!launchReady && !mainCapturedBySaucer) {
                             anchor = ball.pos;
                             baseVel = ball.vel;
@@ -1137,9 +1139,9 @@ int main(int argc, char **argv) {
                         }
                         for (int i = 0; i < spawnCount && static_cast<int>(multiballs.size()) < kMaxMultiballs; ++i) {
                             float a = (static_cast<float>(std::rand() % 1000) / 1000.0f) * 2.0f * kPi;
-                            float speed = 560.0f + static_cast<float>(std::rand() % 460);
+                            float speed = S(560.0f + static_cast<float>(std::rand() % 460));
                             Ball nb;
-                            nb.pos = anchor + Vec2{std::cos(a) * 14.0f, std::sin(a) * 14.0f};
+                            nb.pos = anchor + Vec2{std::cos(a) * S(14.0f), std::sin(a) * S(14.0f)};
                             nb.vel = baseVel + Vec2{std::cos(a) * speed, std::sin(a) * speed};
                             nb.radius = ball.radius;
                             nb.squash = 0.0f;
@@ -1147,8 +1149,8 @@ int main(int argc, char **argv) {
                             nb.maxTtl = nb.ttl;
                             multiballs.push_back(nb);
                         }
-                        floatingTexts.push_back({{500.0f, 86.0f},
-                                                 {0.0f, -20.0f},
+                        floatingTexts.push_back({{S(500.0f), S(86.0f)},
+                                                 {0.0f, -S(20.0f)},
                                                  "+MULTI x" + std::to_string(spawnCount),
                                                  1.0f,
                                                  1.0f});
@@ -1165,8 +1167,8 @@ int main(int argc, char **argv) {
                 }
             }
 
-            if (ball.pos.y > kScreenH + 60.0f) {
-                ball.pos = {850.0f, 1100.0f};
+            if (ball.pos.y > kScreenH + S(60.0f)) {
+                ball.pos = {S(850.0f), S(1100.0f)};
                 ball.vel = {0.0f, 0.0f};
                 ballsLeft -= 1;
                 if (ballsLeft > 0) {
@@ -1191,10 +1193,10 @@ int main(int argc, char **argv) {
             }
 
             // If ball gets trapped back in shooter lane during active play, recapture it for relaunch.
-            if (!launchReady && ball.pos.x > 842.0f && ball.pos.y > 920.0f && std::abs(ball.vel.x) < 120.0f) {
+            if (!launchReady && ball.pos.x > S(842.0f) && ball.pos.y > S(920.0f) && std::abs(ball.vel.x) < S(120.0f)) {
                 launchReady = true;
                 plunger.pullAmount = 0.0f;
-                ball.pos = {850.0f, std::clamp(ball.pos.y, 980.0f, 1140.0f)};
+                ball.pos = {S(850.0f), std::clamp(ball.pos.y, S(980.0f), S(1140.0f))};
                 ball.vel = {0.0f, 0.0f};
             }
 
@@ -1202,7 +1204,7 @@ int main(int argc, char **argv) {
             for (auto &ft : floatingTexts) {
                 ft.ttl -= kFixedDt;
                 ft.pos += ft.vel * kFixedDt;
-                ft.vel.y -= 18.0f * kFixedDt;
+                ft.vel.y -= S(18.0f) * kFixedDt;
             }
             floatingTexts.erase(std::remove_if(floatingTexts.begin(), floatingTexts.end(),
                                                [](const FloatingText &ft) { return ft.ttl <= 0.0f; }),
@@ -1219,7 +1221,7 @@ int main(int argc, char **argv) {
         SDL_SetRenderDrawColor(renderer, 9, 12, 22, 255);
         SDL_RenderClear(renderer);
 
-        SDL_Rect bg{64, 64, 832, 1164};
+        SDL_Rect bg{static_cast<int>(S(64.0f)), static_cast<int>(S(64.0f)), static_cast<int>(S(832.0f)), static_cast<int>(S(1164.0f))};
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 24, 40, 62, 255);
         SDL_RenderFillRect(renderer, &bg);
@@ -1261,10 +1263,12 @@ int main(int argc, char **argv) {
         DrawFlipper(renderer, left, {255, 175, 95, 255});
         DrawFlipper(renderer, right, {255, 175, 95, 255});
 
-        SDL_Rect plungerTrack{846, static_cast<int>(plunger.yTop), 34, static_cast<int>(plunger.yBottom - plunger.yTop)};
+        SDL_Rect plungerTrack{static_cast<int>(S(846.0f)), static_cast<int>(plunger.yTop), static_cast<int>(S(34.0f)),
+                              static_cast<int>(plunger.yBottom - plunger.yTop)};
         SDL_SetRenderDrawColor(renderer, 52, 65, 86, 255);
         SDL_RenderFillRect(renderer, &plungerTrack);
-        SDL_Rect plungerRect{840, static_cast<int>(plunger.yCurrent - 28), 46, 56};
+        SDL_Rect plungerRect{static_cast<int>(S(840.0f)), static_cast<int>(plunger.yCurrent - S(28.0f)), static_cast<int>(S(46.0f)),
+                             static_cast<int>(S(56.0f))};
         SDL_SetRenderDrawColor(renderer, 188, 198, 220, 255);
         SDL_RenderFillRect(renderer, &plungerRect);
 
